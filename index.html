@@ -107,11 +107,12 @@
     }
 
     .lyrics {
-      max-height: 120px;
-      overflow: hidden;
+      max-height: 140px;
+      overflow-y: auto;
       font-size: 0.95rem;
       line-height: 1.6;
       color: #777;
+      scroll-behavior: smooth;
     }
 
     .lyrics .active {
@@ -208,18 +209,35 @@
         lyricsEl.innerHTML = lyrics.map(l => `<div>${l.text}</div>`).join("");
       });
 
-    function updateLyrics(currentTime) {
-      const lines = lyricsEl.children;
-      lyrics.forEach((line, i) => {
-        if (
-          currentTime >= line.time &&
-          (!lyrics[i + 1] || currentTime < lyrics[i + 1].time)
-        ) {
-          [...lines].forEach(l => l.classList.remove("active"));
-          lines[i].classList.add("active");
-        }
+function updateLyrics(currentTime) {
+  const lines = lyricsEl.children;
+
+  lyrics.forEach((line, i) => {
+    if (
+      currentTime >= line.time &&
+      (!lyrics[i + 1] || currentTime < lyrics[i + 1].time)
+    ) {
+      // Remove active class from all
+      [...lines].forEach(l => l.classList.remove("active"));
+
+      // Add active class
+      const activeLine = lines[i];
+      activeLine.classList.add("active");
+
+      // 🔽 AUTO-SCROLL
+      const containerTop = lyricsEl.scrollTop;
+      const containerHeight = lyricsEl.clientHeight;
+      const lineTop = activeLine.offsetTop;
+      const lineHeight = activeLine.clientHeight;
+
+      lyricsEl.scrollTo({
+        top: lineTop - containerHeight / 2 + lineHeight / 2,
+        behavior: "smooth"
       });
     }
+  });
+}
+
   </script>
 
 </body>
