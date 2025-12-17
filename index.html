@@ -107,12 +107,9 @@
     }
 
     .lyrics {
-      max-height: 140px;
-      overflow-y: auto;
-      font-size: 0.95rem;
-      line-height: 1.6;
-      color: #777;
-      scroll-behavior: smooth;
+     max-height: 140px;
+    overflow-y: auto;
+    scroll-behavior: smooth;
     }
 
     .lyrics .active {
@@ -218,46 +215,40 @@
       .join("");
   });
 
-    function updateLyrics(currentTime) {
-      if (!lyrics.length) return;
-    
-      let newIndex = -1;
-    
-      for (let i = 0; i < lyrics.length; i++) {
-        if (
-          currentTime >= lyrics[i].time &&
-          (!lyrics[i + 1] || currentTime < lyrics[i + 1].time)
-        ) {
-          newIndex = i;
-          break;
-        }
-      }
-    
-      // 🚫 Do nothing if lyric hasn't changed
-      if (newIndex === currentLyricIndex) return;
-    
-      currentLyricIndex = newIndex;
-    
-      const lines = lyricsEl.children;
-    
-      // Clear active state
-      [...lines].forEach(line => line.classList.remove("active"));
-    
-      if (newIndex >= 0) {
-        const activeLine = lines[newIndex];
-        activeLine.classList.add("active");
-    
-        // ✅ Scroll EXACTLY to the active line
-        const containerHeight = lyricsEl.clientHeight;
-        const lineOffset = activeLine.offsetTop;
-        const lineHeight = activeLine.offsetHeight;
-    
-        lyricsEl.scrollTo({
-          top: lineOffset - containerHeight / 2 + lineHeight / 2,
-          behavior: "smooth"
-        });
+  function updateLyrics(currentTime) {
+    if (!lyrics.length || isNaN(currentTime)) return;
+  
+    let newIndex = -1;
+  
+    for (let i = 0; i < lyrics.length; i++) {
+      if (
+        currentTime >= lyrics[i].time &&
+        (!lyrics[i + 1] || currentTime < lyrics[i + 1].time)
+      ) {
+        newIndex = i;
+        break;
       }
     }
+  
+    if (newIndex === currentLyricIndex) return;
+    currentLyricIndex = newIndex;
+  
+    const lines = lyricsEl.children;
+  
+    [...lines].forEach(line => line.classList.remove("active"));
+  
+    if (newIndex >= 0) {
+      const activeLine = lines[newIndex];
+      activeLine.classList.add("active");
+  
+      // ✅ THE FIX — browser-handled scroll
+      activeLine.scrollIntoView({
+        behavior: "smooth",
+        block: "center"
+      });
+    }
+  }
+
 
 
   </script>
