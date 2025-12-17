@@ -156,6 +156,8 @@
   </div>
 
   <script>
+    let currentLyricIndex = -1;
+
     const audio = document.getElementById("audio");
     const progress = document.getElementById("progress");
     const timeEl = document.getElementById("time");
@@ -209,34 +211,47 @@
         lyricsEl.innerHTML = lyrics.map(l => `<div>${l.text}</div>`).join("");
       });
 
-function updateLyrics(currentTime) {
-  const lines = lyricsEl.children;
-
-  lyrics.forEach((line, i) => {
-    if (
-      currentTime >= line.time &&
-      (!lyrics[i + 1] || currentTime < lyrics[i + 1].time)
-    ) {
-      // Remove active class from all
-      [...lines].forEach(l => l.classList.remove("active"));
-
-      // Add active class
-      const activeLine = lines[i];
-      activeLine.classList.add("active");
-
-      // 🔽 AUTO-SCROLL
-      const containerTop = lyricsEl.scrollTop;
-      const containerHeight = lyricsEl.clientHeight;
-      const lineTop = activeLine.offsetTop;
-      const lineHeight = activeLine.clientHeight;
-
-      lyricsEl.scrollTo({
-        top: lineTop - containerHeight / 2 + lineHeight / 2,
-        behavior: "smooth"
-      });
+    function updateLyrics(currentTime) {
+      if (!lyrics.length) return;
+    
+      let newIndex = -1;
+    
+      for (let i = 0; i < lyrics.length; i++) {
+        if (
+          currentTime >= lyrics[i].time &&
+          (!lyrics[i + 1] || currentTime < lyrics[i + 1].time)
+        ) {
+          newIndex = i;
+          break;
+        }
+      }
+    
+      // 🚫 Do nothing if lyric hasn't changed
+      if (newIndex === currentLyricIndex) return;
+    
+      currentLyricIndex = newIndex;
+    
+      const lines = lyricsEl.children;
+    
+      // Clear active state
+      [...lines].forEach(line => line.classList.remove("active"));
+    
+      if (newIndex >= 0) {
+        const activeLine = lines[newIndex];
+        activeLine.classList.add("active");
+    
+        // ✅ Scroll EXACTLY to the active line
+        const containerHeight = lyricsEl.clientHeight;
+        const lineOffset = activeLine.offsetTop;
+        const lineHeight = activeLine.offsetHeight;
+    
+        lyricsEl.scrollTo({
+          top: lineOffset - containerHeight / 2 + lineHeight / 2,
+          behavior: "smooth"
+        });
+      }
     }
-  });
-}
+
 
   </script>
 
