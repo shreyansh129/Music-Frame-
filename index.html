@@ -196,20 +196,27 @@
     }
 
     // ----- LYRICS -----
-    fetch("lyrics.lrc")
-      .then(res => res.text())
-      .then(text => {
-        lyrics = text.split("\n").map(line => {
-          const match = line.match(/\[(\d+):(\d+.\d+)\](.*)/);
-          if (!match) return null;
-          return {
-            time: parseInt(match[1]) * 60 + parseFloat(match[2]),
-            text: match[3]
-          };
-        }).filter(Boolean);
+  fetch("lyrics.lrc")
+  .then(res => res.text())
+  .then(text => {
+    lyrics = text
+      .split("\n")
+      .map(line => {
+        const match = line.match(/\[(\d+):(\d+\.\d+)\](.*)/);
+        if (!match) return null;
 
-        lyricsEl.innerHTML = lyrics.map(l => `<div>${l.text}</div>`).join("");
-      });
+        return {
+          time: parseInt(match[1], 10) * 60 + parseFloat(match[2]),
+          text: match[3].trim()
+        };
+      })
+      .filter(Boolean)
+      .sort((a, b) => a.time - b.time); // ✅ FIX
+
+    lyricsEl.innerHTML = lyrics
+      .map(l => `<div>${l.text}</div>`)
+      .join("");
+  });
 
     function updateLyrics(currentTime) {
       if (!lyrics.length) return;
