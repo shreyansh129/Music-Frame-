@@ -164,7 +164,20 @@
 
     let lyrics = [];
 
-    function playMusic() { audio.play(); }
+    function playMusic() {
+  if (audio.readyState < 2) {
+    showLoading(true);
+    audio.load(); // force fetch
+  }
+
+  audio.play().then(() => {
+    showLoading(false);
+  }).catch(() => {
+    // fallback for slow networks
+    setTimeout(() => audio.play(), 300);
+  });
+}
+
     function pauseMusic() { audio.pause(); }
     function stopMusic() { audio.pause(); audio.currentTime = 0; }
 
