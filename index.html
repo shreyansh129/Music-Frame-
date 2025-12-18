@@ -120,6 +120,14 @@
     audio {
       display: none;
     }
+
+    .loading {
+      font-size: 0.9rem;
+      color: #999;
+      margin-bottom: 10px;
+      display: none;
+    }
+
   </style>
 </head>
 <body>
@@ -133,6 +141,9 @@
     <!-- TIME -->
     <div class="time" id="time">0:00 / 0:00</div>
 
+    <!--Loading -->
+    <div class="loading" id="loading">Loading music…</div>
+    
     <!-- PROGRESS BAR -->
     <div class="progress-container" onclick="seek(event)">
       <div class="progress" id="progress"></div>
@@ -163,20 +174,29 @@
     const loopBtn = document.getElementById("loopBtn");
 
     let lyrics = [];
+    
+    function showLoading(show) {
+      document.getElementById("loading").style.display =
+        show ? "block" : "none";
+    }
+
+    audio.addEventListener("canplay", () => {
+      showLoading(false);
+    });
 
     function playMusic() {
-  if (audio.readyState < 2) {
-    showLoading(true);
-    audio.load(); // force fetch
-  }
-
-  audio.play().then(() => {
-    showLoading(false);
-  }).catch(() => {
-    // fallback for slow networks
-    setTimeout(() => audio.play(), 300);
-  });
-}
+      if (audio.readyState < 2) {
+        showLoading(true);
+        audio.load(); // force fetch
+      }
+    
+      audio.play().then(() => {
+        showLoading(false);
+      }).catch(() => {
+        // fallback for slow networks
+        setTimeout(() => audio.play(), 300);
+      });
+    }
 
     function pauseMusic() { audio.pause(); }
     function stopMusic() { audio.pause(); audio.currentTime = 0; }
